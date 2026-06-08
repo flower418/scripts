@@ -26,7 +26,7 @@ training_args = SFTConfig(
 
     learning_rate=2e-5,
     lr_scheduler_type="cosine",
-    warmup_ratio=0.05,
+    warmup_steps=100,
 
     bf16=True,
 
@@ -43,7 +43,7 @@ trainer = SFTTrainer(
     model=model_path,
     args=training_args,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     max_seq_length=2048,
 )
 
