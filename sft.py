@@ -1,6 +1,7 @@
 from trl import SFTTrainer, SFTConfig
 from datasets import load_dataset
 from transformers import AutoTokenizer
+from peft import LoraConfig, TaskType
 
 # ——— 模型 & 分词器 ———
 model_path = "."
@@ -20,12 +21,12 @@ dataset = load_dataset(
 training_args = SFTConfig(
     output_dir="./sft_22k",
 
-    per_device_train_batch_size=2,
+    per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     gradient_checkpointing=True,
     num_train_epochs=3,
 
-    learning_rate=2e-5,
+    learning_rate=2e-4,
     lr_scheduler_type="cosine",
     warmup_steps=100,
 
@@ -40,12 +41,32 @@ training_args = SFTConfig(
     run_name="sft_22k",
 )
 
+# ——— LoRA 配置 ———
+lora_config = LoraConfig(
+    task_type=TaskType.CAUSAL_LM,
+    r=16,
+    lora_alpha=32,
+    lora_dropout=0.05,
+    bias="none",
+    target_modules=[
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+    ],
+)
+
 # ——— Trainer ———
 trainer = SFTTrainer(
     model=model_path,
     args=training_args,
     train_dataset=dataset,
     processing_class=tokenizer,
+    peft_config=lora_config,
 )
 
+trainer.model.print_trainable_parameters()
 trainer.train()
