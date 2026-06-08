@@ -1,0 +1,28 @@
+# 模型文件
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+Qwen*/
+
+# 训练输出
+output/
+checkpoint-*/
+wandb/
+
+# 数据
+*.jsonl
+*.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
