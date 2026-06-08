@@ -20,15 +20,16 @@ dataset = load_dataset(
 training_args = SFTConfig(
     output_dir="./sft_22k",
 
-    per_device_train_batch_size=4,
-    gradient_accumulation_steps=2,
+    per_device_train_batch_size=2,
+    gradient_accumulation_steps=4,
+    gradient_checkpointing=True,
     num_train_epochs=3,
 
     learning_rate=2e-5,
     lr_scheduler_type="cosine",
     warmup_steps=100,
 
-    max_length=2048,
+    max_length=1024,
     bf16=True,
 
     logging_steps=10,
