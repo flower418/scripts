@@ -22,16 +22,20 @@ training_args = SFTConfig(
 
     per_device_train_batch_size=8,
     gradient_accumulation_steps=4,
-
     num_train_epochs=3,
-    l    learning_rate=2e-5,
-    warmup_ratio=0.05,
+
+    learning_rate=2e-5,
     lr_scheduler_type="cosine",
+    warmup_ratio=0.05,
+
     max_seq_length=2048,
+
     bf16=True,
+
     logging_steps=10,
     save_steps=200,
-    save_total_limit=999,
+    save_total_limit=5,
+    
     report_to="wandb",
     run_name="sft_22k",
 )
