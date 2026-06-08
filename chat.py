@@ -18,12 +18,12 @@ def parse_args():
 
 def build_inputs(tokenizer, messages, device):
     if hasattr(tokenizer, "apply_chat_template") and tokenizer.chat_template:
-        input_ids = tokenizer.apply_chat_template(
+        prompt = tokenizer.apply_chat_template(
             messages,
             add_generation_prompt=True,
-            return_tensors="pt",
+            tokenize=False,
         )
-        return input_ids.to(device)
+        return tokenizer(prompt, return_tensors="pt").to(device)
 
     prompt = ""
     for message in messages:
@@ -31,7 +31,7 @@ def build_inputs(tokenizer, messages, device):
         content = message["content"]
         prompt += f"{role}: {content}\n"
     prompt += "assistant: "
-    return tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+    return tokenizer(prompt, return_tensors="pt").to(device)
 
 
 def main():
@@ -78,11 +78,11 @@ def main():
             continue
 
         messages.append({"role": "user", "content": user_text})
-        input_ids = build_inputs(tokenizer, messages, device)
+        inputs = build_inputs(tokenizer, messages, device)
 
         with torch.no_grad():
             output_ids = model.generate(
-                input_ids=input_ids,
+                **inputs,
                 max_new_tokens=args.max_new_tokens,
                 do_sample=args.temperature > 0,
                 temperature=args.temperature,
@@ -91,7 +91,7 @@ def main():
                 eos_token_id=tokenizer.eos_token_id,
             )
 
-        new_tokens = output_ids[0, input_ids.shape[-1] :]
+        new_tokens = output_ids[0, inputs["input_ids"].shape[-1] :]
         answer = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
         print(f"\n助手: {answer}")
         messages.append({"role": "assistant", "content": answer})
